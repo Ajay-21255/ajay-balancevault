@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(USER)
+  accounts  Account[]
+  createdAt DateTime  @default(now())
+  @@map("user")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Account {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  balance   Float         @default(1000.0)
+  status    Status        @default(APPROVED)
+  entries   LedgerEntry[]
+  createdAt DateTime      @default(now())
+  @@map("account")
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model LedgerEntry {
+  id        String   @id @default(uuid())
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id])
+  amount    Float
+  type      EntryType
+  reference String   @db.VarChar(36)
+  createdAt DateTime @default(now())
+  @@map("ledgerentry")
+}
+
+enum EntryType {
+  DEBIT
+  CREDIT
+}
+
+model Transfer {
+  id         String         @id @default(uuid())
+  senderId   String
+  receiverId String
+  amount     Float
+  status     TransferStatus @default(PENDING_ACCEPTANCE)
+  createdAt  DateTime       @default(now())
+  @@map("transfer")
+}
+
+enum TransferStatus {
+  PENDING_ACCEPTANCE
+  COMPLETED
+  REJECTED
+}
