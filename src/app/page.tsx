@@ -1,9 +1,18 @@
-import { authOptions } from "@/auth";
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth/next";
+"use client";
 
-export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-  redirect(session ? "/dashboard" : "/login");
+export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/login");
+  }, [router]);
+
+  return (
+    <div className="min-h-screen bg-[#0A0F1F] flex items-center justify-center text-blue-500 font-mono">
+      Loading Vault...
+    </div>
+  );
 }
